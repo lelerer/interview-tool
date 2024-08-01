@@ -1,4 +1,5 @@
-import React from "react";
+
+import React, { useState, useEffect, useRef } from "react";
 import { ReactSortable } from "react-sortablejs";
 
 const draggableList = [
@@ -9,6 +10,8 @@ export default function SortableQuestionList() {
 	const [list, setList] = React.useState(draggableList);
 	const [showInput, setShowInput] = React.useState(false);
 	const [newItem, setNewItem] = React.useState("");
+	const [editingIndex, setEditingIndex] = useState(null);
+	const inputRef = useRef(null);
 
 	const handleAddClick = () => {
 		setShowInput(true);
@@ -26,10 +29,28 @@ export default function SortableQuestionList() {
 		}
 	};
 
+	const handleItemDoubleClick = (index) => {
+		setEditingIndex(index);
+		setNewItem(list[index].name);
+	};
+
+	const handleEditItem = (index, value) => {
+		const updatedList = list.map((item, i) =>
+			i === index ? { ...item, name: value } : item
+		);
+		setList(updatedList);
+		setEditingIndex(null);
+	};
+
+	useEffect(() => {
+		if (editingIndex !== null) {
+			inputRef.current.focus();
+		}
+	}, [editingIndex]);
+
 	return (
 		<div>
 			<div className="text-lg font-bold">Question List</div>
-			
 			<ReactSortable
 				filter=".addImageButtonContainer"
 				dragClass="sortableDrag"
@@ -38,11 +59,34 @@ export default function SortableQuestionList() {
 				animation="200"
 				easing="ease-out"
 			>
+
 				{list.map((item, index) => (
-					<div key={index} className="my-2 pl-3 py-2 w-full inline-block overflow border rounded-sm border-black">
-						<span className="font-bold mr-2">{index + 1}.</span> {item.name}
+					<div
+						key={index}
+						className="my-2 pl-3 py-2 w-full inline-block overflow border rounded-sm border-black"
+						onDoubleClick={() => handleItemDoubleClick(index)}
+					>
+						{editingIndex === index ? (
+							<textarea
+								ref={inputRef}
+								className="border pl-2 py-2"
+								value={newItem}
+								onChange={handleInputChange}
+								onBlur={() => handleEditItem(index, newItem)}
+								style={{
+									width: "100%",
+									resize: "none",
+									overflow: "hidden"
+								}}
+							/>
+						) : (
+							<span>
+								<span className="font-bold mr-2">{index + 1}.</span> {item.name}
+							</span>
+						)}
 					</div>
 				))}
+
 			</ReactSortable>
 			<div>
 				{showInput && (
@@ -51,6 +95,7 @@ export default function SortableQuestionList() {
 							className="border pl-2 py-2"
 							value={newItem}
 							onChange={handleInputChange}
+							onBlur={handleAddItem}
 							placeholder="Type your question here"
 							style={{
 								width: "100%",
@@ -58,7 +103,6 @@ export default function SortableQuestionList() {
 								overflow: "hidden"
 							}}
 						/>
-						<button onClick={handleAddItem}>Submit</button>
 					</div>
 				)}
 			</div>
