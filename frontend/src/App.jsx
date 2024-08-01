@@ -1,7 +1,6 @@
-import './App.css';
 // import { Routes, Route, Navigate } from 'react-router-dom';
-
-import AddQuestion from './pages/addQuestion.tsx';
+import React from 'react';
+import AddQuestion from './pages/addQuestion';
 
 export default function App() {
 	return (
@@ -11,7 +10,9 @@ export default function App() {
 				<Route path="/add-question" element={<AddQuestion />} /> 	
 			</Routes> */}
 
-			<AddQuestion />
+			<div className='px-10 pt-10'>
+				<AddQuestion />	
+			</div>
 		</>
 	);
 }
