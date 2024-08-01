@@ -24,9 +24,9 @@ export default function SortableQuestionList() {
 	const handleAddItem = () => {
 		if (newItem.trim()) {
 			setList([...list, { name: newItem }]);
-			setNewItem("");
-			setShowInput(false);
 		}
+			setNewItem("");
+			setShowInput(false);	
 	};
 
 	const handleItemDoubleClick = (index) => {
@@ -35,12 +35,19 @@ export default function SortableQuestionList() {
 	};
 
 	const handleEditItem = (index, value) => {
-		const updatedList = list.map((item, i) =>
-			i === index ? { ...item, name: value } : item
-		);
-		setList(updatedList);
+		if (value.trim()) {
+			const updatedList = list.map((item, i) =>
+				i === index ? { ...item, name: value } : item
+			);
+			setList(updatedList);
+		} else {
+			// Remove the item if the value is empty
+			const updatedList = list.filter((_, i) => i !== index);
+			setList(updatedList);
+		}
 		setEditingIndex(null);
 	};
+
 
 	useEffect(() => {
 		if (editingIndex !== null) {
@@ -56,7 +63,7 @@ export default function SortableQuestionList() {
 				dragClass="sortableDrag"
 				list={list}
 				setList={setList}
-				animation="200"
+				animation="100"
 				easing="ease-out"
 			>
 
@@ -86,8 +93,9 @@ export default function SortableQuestionList() {
 						)}
 					</div>
 				))}
-
 			</ReactSortable>
+
+
 			<div>
 				{showInput && (
 					<div>
