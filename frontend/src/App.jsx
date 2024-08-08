@@ -1,6 +1,7 @@
 // import { Routes, Route, Navigate } from 'react-router-dom';
 import React from 'react';
 import AddQuestion from './pages/addQuestion';
+import StartInterview from "./pages/StartInterview";
 
 export default function App() {
 	return (
@@ -11,8 +12,10 @@ export default function App() {
 			</Routes> */}
 
 			<div className='px-10 pt-10'>
-				<AddQuestion />	
+				<AddQuestion />
+
 			</div>
+			<StartInterview />
 		</>
 	);
 }
