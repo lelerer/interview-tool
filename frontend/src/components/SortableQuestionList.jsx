@@ -1,10 +1,7 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { ReactSortable } from "react-sortablejs";
 
-const draggableList = [
-
-];
+const draggableList = [];
 
 export default function SortableQuestionList() {
 	const [list, setList] = React.useState(draggableList);
@@ -47,7 +44,6 @@ export default function SortableQuestionList() {
 		}
 		setEditingIndex(null);
 	};
-
 
 	useEffect(() => {
 		if (editingIndex !== null) {

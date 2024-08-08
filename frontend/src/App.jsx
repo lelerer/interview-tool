@@ -13,9 +13,11 @@ export default function App() {
 
 			<div className='px-10 pt-10'>
 				<AddQuestion />
-
 			</div>
-			<StartInterview />
+			
+			<div class="flex justify-end px-5 pr-10">
+				<button class="bg-blue-500 text-white px-5 py-3 rounded-lg">start</button>
+			</div>
 		</>
 	);
 }
