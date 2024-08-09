@@ -1,7 +1,7 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
 
-function DisplayResults() {
+function AfterInterview() {
   const location = useLocation();
   const { results } = location.state;
 
@@ -12,5 +12,5 @@ function DisplayResults() {
   );
 }
 
-export default DisplayResults;
+export default AfterInterview;
 
