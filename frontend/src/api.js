@@ -17,10 +17,10 @@ export const analyzeQuestions = async (prompt) => {
       {
         model: "gpt-3.5-turbo",
         messages: [
-          {
-            role: "system",
-            content: "You are an expert at analyzing interview questions."
-          },
+        //   {
+        //     role: "system",
+        //     content: "You are an expert at analyzing the transcript of an interview on a research topic."
+        //   },
           {
             role: "user",
             content: prompt,

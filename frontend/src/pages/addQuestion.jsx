@@ -2,7 +2,6 @@ import '../index.css';
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ReactSortable } from "react-sortablejs";
-import { analyzeQuestions } from '../api';
 
 const draggableList = [];
 
@@ -21,30 +20,14 @@ function AddQuestion() {
 	const [newItem, setNewItem] = React.useState("");
 	const [editingIndex, setEditingIndex] = useState(null);
 	const inputRef = useRef(null);
-	const [questions, setQuestions] = useState('');
-	const [analysis, setAnalysis] = useState('');
-	const [customPrompt, setCustomPrompt] = useState('');
-	const requirementPrompts = [
-		'output the result in points and shortest form'
-	]
 
+	
 	const handleItemClick = (index) => {
 		setSelectedIndex(index);
 	};
 
 	const handleInputChange = (e) => {
 		setNewItem(e.target.value);
-	};
-
-	const handleAnalyze = async () => {
-		try {
-			const prompt = `${requirementPrompts} ${questions}`;
-			const result = await analyzeQuestions(prompt);
-			setAnalysis(result);
-		} catch (error) {
-			console.error('Analysis failed', error);
-			setAnalysis('An error occurred while analyzing the questions.');
-		}
 	};
 
 	const handleCheckboxChange = (index) => {
@@ -77,7 +60,6 @@ function AddQuestion() {
 			);
 			setList(updatedList);
 		} else {
-			// Remove the item if the value is empty
 			const updatedList = list.filter((_, i) => i !== index);
 			setList(updatedList);
 		}
@@ -103,8 +85,6 @@ function AddQuestion() {
 				const blob = new Blob(chunks.current, { type: "audio/wav" });
 				setAudioBlob(blob);
 				chunks.current = [];
-
-				// Now that the blob is ready, call the transcription function
 				await handleUploadAndTranscribe(blob);
 			};
 
@@ -114,10 +94,6 @@ function AddQuestion() {
 			console.error("Error accessing microphone:", error);
 		}
 	};
-
-	const handleAnalyzeRecent30s = () => {
-
-	}
 
 	const stopRecording = () => {
 		if (mediaRecorderRef.current) {
@@ -247,7 +223,7 @@ function AddQuestion() {
 					</button>
 				)}
 
-				<button
+				{/* <button
 					onClick={handleAnalyzeRecent30s}
 					className="bg-yellow-500 hover:bg-yellow-700 text-white px-5 py-3 rounded-lg"
 				>
@@ -259,7 +235,7 @@ function AddQuestion() {
 						<h3 className="text-lg font-semibold">Recent 30s Analysis Result:</h3>
 						<pre className="w-full whitespace-normal break-words">{recentResults}</pre>
 					</div>
-				)}
+				)} */}
 
 			</div>
 		</>
