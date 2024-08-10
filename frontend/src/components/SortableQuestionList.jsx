@@ -65,13 +65,15 @@ export default function SortableQuestionList() {
 				setList={setList}
 				animation="100"
 				easing="ease-out"
-			>
+ 
+				>
 
 				{list.map((item, index) => (
 					<div
 						key={index}
-						className="my-2 pl-3 py-2 w-full inline-block overflow border rounded-sm border-black"
+						className="my-2 pl-3 py-2 px-4 block overflow border rounded-sm border-black"
 						onDoubleClick={() => handleItemDoubleClick(index)}
+
 					>
 						{editingIndex === index ? (
 							<textarea
@@ -81,13 +83,13 @@ export default function SortableQuestionList() {
 								onChange={handleInputChange}
 								onBlur={() => handleEditItem(index, newItem)}
 								style={{
-									width: "100%",
+									width: "70%",
 									resize: "none",
-									overflow: "hidden"
+									overflow: "hidden",
 								}}
 							/>
 						) : (
-							<span>
+							<span className="block max-w-60">
 								<span className="font-bold mr-2">{index + 1}.</span> {item.name}
 							</span>
 						)}
@@ -106,7 +108,7 @@ export default function SortableQuestionList() {
 							onBlur={handleAddItem}
 							placeholder="Type your question here"
 							style={{
-								width: "100%",
+								width: "70%",
 								resize: "none",
 								overflow: "hidden"
 							}}

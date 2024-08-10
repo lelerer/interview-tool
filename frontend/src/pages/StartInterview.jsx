@@ -60,7 +60,7 @@ export default function StartInterview(){
     // }
     return (
         <div>
-            <button className="bg-gray-700 text-white font-bold rounded py-2 px-4 shadow-md hover:bg-gray-800 focus:outline-none focus:ring focus:ring-gray-400" style={{ position: 'absolute',right:'8%',top:'5%'}}>Start Interview</button>
+            <button className="bg-gray-700 text-white font-bold rounded py-2 px-4 shadow-md hover:bg-gray-800 focus:outline-none focus:ring focus:ring-gray-400" style={{ position: 'absolute',right:'8%',top:'2%'}}>Start Interview</button>
         </div>
     );
 }
