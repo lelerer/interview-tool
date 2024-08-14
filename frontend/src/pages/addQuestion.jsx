@@ -2,25 +2,22 @@ import '../index.css';
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ReactSortable } from "react-sortablejs";
+import RealTimeTranscription from '../components/RealTimeTranscription';
 
 const draggableList = [];
 
 function AddQuestion() {
 	const navigate = useNavigate();
 	const [recording, setRecording] = useState(false);
-	const [recentAudio, setRecentAudio] = useState(null);
 	const [audioBlob, setAudioBlob] = useState(null);
 	const mediaRecorderRef = useRef(null);
 	const chunks = useRef([]);
 	const [selectedIndex, setSelectedIndex] = useState(null);
-	const recentChunks = useRef([]);
-	const [recentResults, setRecentResults] = useState(null);
 	const [list, setList] = React.useState(draggableList);
 	const [showInput, setShowInput] = React.useState(false);
 	const [newItem, setNewItem] = React.useState("");
 	const [editingIndex, setEditingIndex] = useState(null);
 	const inputRef = useRef(null);
-
 	
 	const handleItemClick = (index) => {
 		setSelectedIndex(index);
@@ -222,23 +219,11 @@ function AddQuestion() {
 						Stop
 					</button>
 				)}
-
-				{/* <button
-					onClick={handleAnalyzeRecent30s}
-					className="bg-yellow-500 hover:bg-yellow-700 text-white px-5 py-3 rounded-lg"
-				>
-					Analyze Recent 30s
-				</button>
-
-				{recentResults && (
-					<div className="mt-4 p-5 border rounded-lg bg-gray-100">
-						<h3 className="text-lg font-semibold">Recent 30s Analysis Result:</h3>
-						<pre className="w-full whitespace-normal break-words">{recentResults}</pre>
-					</div>
-				)} */}
-
 			</div>
+
+			{/* <RealTimeTranscription/> */}
 		</>
+		
 	);
 }
 
