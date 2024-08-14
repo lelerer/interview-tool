@@ -21,6 +21,15 @@ function AddQuestion() {
 	
 	const handleItemClick = (index) => {
 		setSelectedIndex(index);
+        if (!list[index].checked) {
+            // Move the clicked item to the top of the list
+            setList(prevList => {
+                const item = prevList[index];
+                const updatedList = [item, ...prevList.filter((_, i) => i !== index)];
+                setSelectedIndex(0); // Optional: set the first item as selected
+                return updatedList;
+            });
+		}
 	};
 
 	const handleInputChange = (e) => {
@@ -122,8 +131,7 @@ function AddQuestion() {
 				method: "POST",
 				prompt: "Return the results in bullet points",
 				headers: {
-					"Authorization": `Bearer `
-				},
+					"Authorization": `Bearer 				`},
 				body: formData
 			});
 

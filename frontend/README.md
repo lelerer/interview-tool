@@ -2,7 +2,8 @@
 
 1. Navigate to the the project directory
 2. Run: `npm install`
-3. Run `npm run start` 
+3. Run `npm run start`
+4. Run `node server.js` 
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
