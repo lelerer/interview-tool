@@ -8,7 +8,7 @@ function AfterInterview() {
 	const [analysis, setAnalysis] = useState('');
 
 	const prompts = [
-		`Extract the key topics discussed during an interview from the transcript below.
+		`Use one word for each to extract the key topics discussed during an interview from the transcript below.
 
 		Use the format below quoted by double quotes:
 		"
@@ -36,7 +36,7 @@ function AfterInterview() {
 		<div className="p-5">
 			<div className="mt-4">
 				<h3 className="text-lg font-bold mb-2">Results</h3>
-				<pre>{JSON.stringify(results.text, null, 2)}</pre>
+				<pre className="whitespace-pre-wrap">{JSON.stringify(results.text, null, 2)}</pre>
 			</div>
 
 			<button
