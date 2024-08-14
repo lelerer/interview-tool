@@ -18,17 +18,17 @@ function AddQuestion() {
 	const [newItem, setNewItem] = React.useState("");
 	const [editingIndex, setEditingIndex] = useState(null);
 	const inputRef = useRef(null);
-	
+
 	const handleItemClick = (index) => {
 		setSelectedIndex(index);
-        if (!list[index].checked) {
-            // Move the clicked item to the top of the list
-            setList(prevList => {
-                const item = prevList[index];
-                const updatedList = [item, ...prevList.filter((_, i) => i !== index)];
-                setSelectedIndex(0); // Optional: set the first item as selected
-                return updatedList;
-            });
+		if (!list[index].checked) {
+			// Move the clicked item to the top of the list
+			setList(prevList => {
+				const item = prevList[index];
+				const updatedList = [item, ...prevList.filter((_, i) => i !== index)];
+				setSelectedIndex(0); // Optional: set the first item as selected
+				return updatedList;
+			});
 		}
 	};
 
@@ -131,7 +131,8 @@ function AddQuestion() {
 				method: "POST",
 				prompt: "Return the results in bullet points",
 				headers: {
-					"Authorization": `Bearer 				`},
+					"Authorization": `Bearer 				`
+				},
 				body: formData
 			});
 
@@ -157,10 +158,9 @@ function AddQuestion() {
 					{list.map((item, index) => (
 						<div
 							key={index}
-							className={`my-2 pl-3 py-2 w-full inline-block overflow border rounded-sm flex items-center ${
-								item.checked ? 'bg-blue-100 border-blue-500' : selectedIndex === index ? 'bg-yellow-100 border-yellow-500' : 'bg-white border-black'
-							  }`}
-							  onClick={() => handleItemClick(index)} 
+							className={`my-2 pl-3 py-2 w-full inline-block overflow border rounded-sm flex items-center ${item.checked ? 'bg-blue-100 border-blue-500' : selectedIndex === index ? 'bg-yellow-100 border-yellow-500' : 'bg-white border-black'
+								}`}
+							onClick={() => handleItemClick(index)}
 							onDoubleClick={() => handleItemDoubleClick(index)}
 						>
 							<input
@@ -219,7 +219,11 @@ function AddQuestion() {
 
 			<div className="flex justify-end px-5 pr-10">
 				{!recording ? (
-					<button onClick={handleStartClick} className="bg-blue-500 hover:bg-sky-700 text-white px-5 py-3 rounded-lg">
+					// <button onClick={handleStartClick} className="bg-blue-500 hover:bg-sky-700 text-white px-5 py-3 rounded-lg">
+					// 	Start
+					// </button>
+
+					<button onClick={handleStartClick} className="bg-gray-700 text-white font-bold rounded py-2 px-4 shadow-md hover:bg-gray-800 focus:outline-none focus:ring focus:ring-gray-400">
 						Start
 					</button>
 				) : (
@@ -229,9 +233,9 @@ function AddQuestion() {
 				)}
 			</div>
 
-			<RealTimeTranscription/>
+			<RealTimeTranscription />
 		</>
-		
+
 	);
 }
 
