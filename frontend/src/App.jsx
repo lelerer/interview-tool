@@ -9,13 +9,10 @@ export default function App() {
 	return (
 		<>
 			<Routes>
-				<Route index path="/" element={<Navigate to="/" />} />
+				<Route index path="/" element={<Navigate to="/add-question" />} />
 				<Route path="/add-question" element={<AddQuestion />} />
 				<Route path="/after-interview" element={<AfterInterview />} />
 			</Routes>
-
-			<RealTimeTranscription />
-
 		</>
 	);
 }

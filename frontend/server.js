@@ -1,4 +1,4 @@
-const { AssemblyAI, RealtimeTranscript } = require('assemblyai');
+const { AssemblyAI } = require('assemblyai');
 const recorder = require('node-record-lpcm16');
 const WebSocket = require('ws');
 
@@ -6,7 +6,7 @@ const wss = new WebSocket.Server({ port: 8080 });
 
 wss.on('connection', (ws) => {
     console.log('Client connected');
-  
+
     const client = new AssemblyAI({
         apiKey: 'ee1a4a387a2c4df6b57325a41edd79b4',
     });
@@ -29,7 +29,10 @@ wss.on('connection', (ws) => {
 
     transcriber.on('transcript', (transcript) => {
         if (transcript.text) {
-            ws.send(transcript.text);
+            if (transcript.message_type === 'FinalTranscript') {
+                // Send only final transcript
+                ws.send(transcript.text);
+            }
         }
     });
 

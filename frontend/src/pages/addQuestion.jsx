@@ -221,7 +221,7 @@ function AddQuestion() {
 				)}
 			</div>
 
-			{/* <RealTimeTranscription/> */}
+			<RealTimeTranscription/>
 		</>
 		
 	);
