@@ -1,6 +1,6 @@
 import { useLocation } from "react-router-dom";
 import React, { useState } from "react";
-import { analyzeQuestions } from '../api';
+import { analyzeFullScript } from '../api';
 
 function AfterInterview() {
 	const location = useLocation();
@@ -24,7 +24,7 @@ function AfterInterview() {
 	const handleAnalyze = async () => {
 		try {
 			const prompt = `${prompts}`;
-			const result = await analyzeQuestions(prompt);
+			const result = await analyzeFullScript(prompt);
 			setAnalysis(result);
 		} catch (error) {
 			console.error('Analysis failed', error);
@@ -49,7 +49,6 @@ function AfterInterview() {
 			{analysis && (
 				<div className="mt-4">
 					<h3 className="text-lg font-bold mb-2">Analysis</h3>
-					{/* Text container with improved styling */}
 					<div className="bg-gray-100 p-4 border border-gray-300 rounded">
 						<pre className="whitespace-pre-wrap">{JSON.stringify(analysis, null, 2)}</pre>
 					</div>
