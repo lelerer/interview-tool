@@ -13,10 +13,6 @@ export default function App() {
 				<Route path="/add-question" element={<AddQuestion />} />
 				<Route path="/after-interview" element={<AfterInterview />} />
 			</Routes>
-
-
-
-
 		</>
 	);
 }

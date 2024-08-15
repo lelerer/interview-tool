@@ -77,22 +77,19 @@ function AddQuestion() {
 		setEditingIndex(null);
 	};
 
-	
+
 	const handleSimulateAnswer = async () => {
 		try {
 			// Iterate through each question in the list
 			const results = await Promise.all(list.map(async (item) => {
 				const prompt = `
-					You will be given a question, and your task is to simulate users' answers to that.
+					You will be given a question, and your task is to simulate users' answers to that. 
+					One answer is enough.
 					Question: ${item.name}
 				`;
-
-				// Call simulateAnswer for each prompt
 				const result = await simulateAnswer(prompt);
 				return result;
 			}));
-
-			// Flatten the results array if necessary
 			const flattenedResults = results.flat();
 			console.log('Simulating results:', flattenedResults);
 			setSimulation(flattenedResults);
@@ -274,28 +271,14 @@ function AddQuestion() {
 				)}
 			</div>
 
-			{/* <div className="flex pt-5 justify-end px-5 pr-10">
-				<button onClick={handleSimulateAnswer()} className="bg-yellow-500 hover:bg-yellow-700 text-white px-5 py-3 rounded-lg">
+			<div className="flex pt-5 justify-end px-5 pr-10">
+				<button onClick={handleSimulateAnswer} className="bg-yellow-500 hover:bg-yellow-700 text-white px-5 py-3 rounded-lg">
 					Simulate
 				</button>
-			</div> */}
+			</div>
 
 			<div className='px-10 mt-5 text-lg board font-bold'>Real Time Transcription</div>
 			<RealTimeTranscription ref={realTimeTranscriptionRef} />
-
-
-			{simulation.length > 0 && (
-				<div className="board px-10 mt-5">
-					<h2 className="text-lg font-bold">Simulated Answers</h2>
-					<ul>
-						{simulation.map((answer, index) => (
-							<li key={index} className="mb-2 p-2 border rounded-md">
-								{answer}
-							</li>
-						))}
-					</ul>
-				</div>
-			)}
 
 			{Array.isArray(analysis) && analysis.length > 0 && (
 				<div className="px-10 mt-5">
@@ -315,6 +298,19 @@ function AddQuestion() {
 				className="ml-5 w-10 h-90 bg-slate-700 hover:bg-slate-900 text-white px-1 py-2 rounded-lg text-sm"
 			>Mark
 			</div>
+
+			{simulation.length > 0 && (
+				<div className="board px-10 mt-5">
+					<h2 className="text-lg font-bold">Simulated Answers</h2>
+					<ul>
+						{simulation.map((answer, index) => (
+							<li key={index} className="mb-2 p-2 border rounded-md">
+								{answer}
+							</li>
+						))}
+					</ul>
+				</div>
+			)}
 
 		</>
 	);
