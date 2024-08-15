@@ -178,7 +178,7 @@ function AddQuestion() {
 				method: "POST",
 				prompt: "Return the results in bullet points",
 				headers: {
-					"Authorization": `Bearer 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`
+					"Authorization": `Bearer `
 				},
 				body: formData
 			});
