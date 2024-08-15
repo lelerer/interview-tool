@@ -2,7 +2,7 @@ import '../index.css';
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ReactSortable } from "react-sortablejs";
-import { analyzeFullScript } from '../api';
+import { analyzeFullScript, simulateAnswer } from '../api';
 import RealTimeTranscription from '../components/RealTimeTranscription';
 
 const draggableList = [];
@@ -22,6 +22,7 @@ function AddQuestion() {
 	const state = useLocation();
 	const results = state ? state.results : null;
 	const [analysis, setAnalysis] = useState([]);
+	const [simulation, setSimulation] = useState([]);
 	const realTimeTranscriptionRef = useRef(null);
 
 	const handleItemClick = (index) => {
@@ -30,7 +31,7 @@ function AddQuestion() {
 			setList(prevList => {
 				const item = prevList[index];
 				const updatedList = [item, ...prevList.filter((_, i) => i !== index)];
-				setSelectedIndex(0); 
+				setSelectedIndex(0);
 				return updatedList;
 			});
 		}
@@ -52,7 +53,7 @@ function AddQuestion() {
 			setNewItem('');
 		}
 		setShowInput(false);
-	};
+	}
 
 	const handleAddClick = () => {
 		setShowInput(true);
@@ -76,6 +77,34 @@ function AddQuestion() {
 		setEditingIndex(null);
 	};
 
+	
+	const handleSimulateAnswer = async () => {
+		try {
+			// Iterate through each question in the list
+			const results = await Promise.all(list.map(async (item) => {
+				const prompt = `
+					You will be given a question, and your task is to simulate users' answers to that.
+					Question: ${item.name}
+				`;
+
+				// Call simulateAnswer for each prompt
+				const result = await simulateAnswer(prompt);
+				return result;
+			}));
+
+			// Flatten the results array if necessary
+			const flattenedResults = results.flat();
+			console.log('Simulating results:', flattenedResults);
+			setSimulation(flattenedResults);
+
+		} catch (error) {
+			console.error('Simulating failed', error);
+			setSimulation(['An error occurred while simulating the answers']);
+		}
+	};
+
+
+
 	const handleMark = async () => {
 		try {
 			const transcriptionContent = realTimeTranscriptionRef.current.getTranscriptionContent();
@@ -83,12 +112,12 @@ function AddQuestion() {
 			const prompt = `Use one word to summarize the main idea of the sentence below:\n\nSentence: ${transcriptionContent},\nUse the same language as the transcript's language.`;
 			const result = await analyzeFullScript(prompt);
 
-			console.log('Analysis results:', result);
+			console.log('Marking results:', result);
 
 			const results = Array.isArray(result) ? result : [result];
 			setAnalysis(results);
 		} catch (error) {
-			console.error('Analysis failed', error);
+			console.error('Marking failed', error);
 			setAnalysis(['An error occurred while marking the key points']);
 		}
 	};
@@ -245,8 +274,28 @@ function AddQuestion() {
 				)}
 			</div>
 
+			{/* <div className="flex pt-5 justify-end px-5 pr-10">
+				<button onClick={handleSimulateAnswer()} className="bg-yellow-500 hover:bg-yellow-700 text-white px-5 py-3 rounded-lg">
+					Simulate
+				</button>
+			</div> */}
+
 			<div className='px-10 mt-5 text-lg board font-bold'>Real Time Transcription</div>
 			<RealTimeTranscription ref={realTimeTranscriptionRef} />
+
+
+			{simulation.length > 0 && (
+				<div className="board px-10 mt-5">
+					<h2 className="text-lg font-bold">Simulated Answers</h2>
+					<ul>
+						{simulation.map((answer, index) => (
+							<li key={index} className="mb-2 p-2 border rounded-md">
+								{answer}
+							</li>
+						))}
+					</ul>
+				</div>
+			)}
 
 			{Array.isArray(analysis) && analysis.length > 0 && (
 				<div className="px-10 mt-5">
