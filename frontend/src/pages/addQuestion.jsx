@@ -1,7 +1,8 @@
 import '../index.css';
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ReactSortable } from "react-sortablejs";
+import { analyzeFullScript, simulateAnswer } from '../api';
 import RealTimeTranscription from '../components/RealTimeTranscription';
 
 const draggableList = [];
@@ -18,17 +19,21 @@ function AddQuestion() {
 	const [newItem, setNewItem] = React.useState("");
 	const [editingIndex, setEditingIndex] = useState(null);
 	const inputRef = useRef(null);
-	
+	const state = useLocation();
+	const results = state ? state.results : null;
+	const [analysis, setAnalysis] = useState([]);
+	const [simulation, setSimulation] = useState([]);
+	const realTimeTranscriptionRef = useRef(null);
+
 	const handleItemClick = (index) => {
 		setSelectedIndex(index);
-        if (!list[index].checked) {
-            // Move the clicked item to the top of the list
-            setList(prevList => {
-                const item = prevList[index];
-                const updatedList = [item, ...prevList.filter((_, i) => i !== index)];
-                setSelectedIndex(0); // Optional: set the first item as selected
-                return updatedList;
-            });
+		if (!list[index].checked) {
+			setList(prevList => {
+				const item = prevList[index];
+				const updatedList = [item, ...prevList.filter((_, i) => i !== index)];
+				setSelectedIndex(0);
+				return updatedList;
+			});
 		}
 	};
 
@@ -48,7 +53,7 @@ function AddQuestion() {
 			setNewItem('');
 		}
 		setShowInput(false);
-	};
+	}
 
 	const handleAddClick = () => {
 		setShowInput(true);
@@ -70,6 +75,48 @@ function AddQuestion() {
 			setList(updatedList);
 		}
 		setEditingIndex(null);
+	};
+
+
+	const handleSimulateAnswer = async () => {
+		try {
+			// Iterate through each question in the list
+			const results = await Promise.all(list.map(async (item) => {
+				const prompt = `
+					You will be given a question, and your task is to simulate users' answers to that. 
+					One answer is enough.
+					Question: ${item.name}
+				`;
+				const result = await simulateAnswer(prompt);
+				return result;
+			}));
+			const flattenedResults = results.flat();
+			console.log('Simulating results:', flattenedResults);
+			setSimulation(flattenedResults);
+
+		} catch (error) {
+			console.error('Simulating failed', error);
+			setSimulation(['An error occurred while simulating the answers']);
+		}
+	};
+
+
+
+	const handleMark = async () => {
+		try {
+			const transcriptionContent = realTimeTranscriptionRef.current.getTranscriptionContent();
+
+			const prompt = `Use one word to summarize the main idea of the sentence below:\n\nSentence: ${transcriptionContent},\nUse the same language as the transcript's language.`;
+			const result = await analyzeFullScript(prompt);
+
+			console.log('Marking results:', result);
+
+			const results = Array.isArray(result) ? result : [result];
+			setAnalysis(results);
+		} catch (error) {
+			console.error('Marking failed', error);
+			setAnalysis(['An error occurred while marking the key points']);
+		}
 	};
 
 	useEffect(() => {
@@ -131,7 +178,8 @@ function AddQuestion() {
 				method: "POST",
 				prompt: "Return the results in bullet points",
 				headers: {
-					"Authorization": `Bearer 				`},
+					"Authorization": `Bearer `
+				},
 				body: formData
 			});
 
@@ -143,80 +191,74 @@ function AddQuestion() {
 	};
 
 	return (
-		<>
-			<div className="mx-10 mt-10">
-				<div className="text-lg font-bold">Question List</div>
-				<ReactSortable
-					filter=".addImageButtonContainer"
-					dragClass="sortableDrag"
-					list={list}
-					setList={setList}
-					animation="100"
-					easing="ease-out"
-				>
-					{list.map((item, index) => (
-						<div
-							key={index}
-							className={`my-2 pl-3 py-2 w-full inline-block overflow border rounded-sm flex items-center ${
-								item.checked ? 'bg-blue-100 border-blue-500' : selectedIndex === index ? 'bg-yellow-100 border-yellow-500' : 'bg-white border-black'
-							  }`}
-							  onClick={() => handleItemClick(index)} 
-							onDoubleClick={() => handleItemDoubleClick(index)}
-						>
-							<input
-								type="checkbox"
-								checked={item.checked}
-								onChange={() => handleCheckboxChange(index)}
-								className="mr-2"
-							/>
-							{editingIndex === index ? (
-								<textarea
-									ref={inputRef}
-									className="border pl-2 py-2"
-									value={newItem}
-									onChange={handleInputChange}
-									onBlur={() => handleEditItem(index, newItem)}
-									style={{
-										width: "100%",
-										resize: "none",
-										overflow: "hidden"
-									}}
-								/>
-							) : (
-								<span>
-									<span className="font-bold mr-2">{index + 1}.</span> {item.name}
-								</span>
-							)}
-						</div>
-					))}
-				</ReactSortable>
 
-				<div>
-					{showInput && (
-						<div>
+		<><div className="mx-10 mt-10">
+			<div className="text-lg font-bold">Question List</div>
+			<ReactSortable
+				filter=".addImageButtonContainer"
+				dragClass="sortableDrag"
+				list={list}
+				setList={setList}
+				animation="100"
+				easing="ease-out"
+			>
+				{list.map((item, index) => (
+					<div
+						key={index}
+						className={`my-2 pl-3 py-2 w-full inline-block overflow border rounded-sm flex items-center ${item.checked ? 'bg-blue-100 border-blue-500' : selectedIndex === index ? 'bg-yellow-100 border-yellow-500' : 'bg-white border-black'}`}
+						onClick={() => handleItemClick(index)}
+						onDoubleClick={() => handleItemDoubleClick(index)}
+					>
+						<input
+							type="checkbox"
+							checked={item.checked}
+							onChange={() => handleCheckboxChange(index)}
+							className="mr-2" />
+						{editingIndex === index ? (
 							<textarea
+								ref={inputRef}
 								className="border pl-2 py-2"
 								value={newItem}
 								onChange={handleInputChange}
-								onBlur={handleAddItem}
-								placeholder="Type your question here"
+								onBlur={() => handleEditItem(index, newItem)}
 								style={{
 									width: "100%",
 									resize: "none",
 									overflow: "hidden"
-								}}
-							/>
-						</div>
-					)}
-				</div>
-				<button
-					className="px-3 py-3 border rounded-lg text-gray-500"
-					onClick={handleAddClick}
-				>
-					+ Click here to add new questions
-				</button>
-			</div>
+								}} />
+						) : (
+							<span>
+								<span className="font-bold mr-2">{index + 1}.</span> {item.name}
+							</span>
+						)}
+					</div>
+				))}
+			</ReactSortable>
 
+			<div>
+				{showInput && (
+					<div>
+						<textarea
+							className="border pl-2 py-2"
+							value={newItem}
+							onChange={handleInputChange}
+							onBlur={handleAddItem}
+							placeholder="Type your question here"
+							style={{
+								width: "100%",
+								resize: "none",
+								overflow: "hidden"
+							}} />
+					</div>
+				)}
+			</div>
+			<button
+				className="px-3 py-3 border rounded-lg text-gray-500"
+				onClick={handleAddClick}
+			>
+				+ Click here to add new questions
+			</button>
+		</div>
 			<div className="flex justify-end px-5 pr-10">
 				{!recording ? (
 					<button onClick={handleStartClick} className="bg-blue-500 hover:bg-sky-700 text-white px-5 py-3 rounded-lg">
@@ -229,9 +271,48 @@ function AddQuestion() {
 				)}
 			</div>
 
-			<RealTimeTranscription/>
+			<div className="flex pt-5 justify-end px-5 pr-10">
+				<button onClick={handleSimulateAnswer} className="bg-yellow-500 hover:bg-yellow-700 text-white px-5 py-3 rounded-lg">
+					Simulate
+				</button>
+			</div>
+
+			<div className='px-10 mt-5 text-lg board font-bold'>Real Time Transcription</div>
+			<RealTimeTranscription ref={realTimeTranscriptionRef} />
+
+			{Array.isArray(analysis) && analysis.length > 0 && (
+				<div className="px-10 mt-5">
+					<h2 className="text-lg font-bold">Analysis Results</h2>
+					<ul>
+						{analysis.map((item, index) => (
+							<li key={index} className="mb-2 p-2 border rounded-md">
+								{item}
+							</li>
+						))}
+					</ul>
+				</div>
+			)}
+
+			<div
+				onClick={handleMark}
+				className="ml-5 w-10 h-90 bg-slate-700 hover:bg-slate-900 text-white px-1 py-2 rounded-lg text-sm"
+			>Mark
+			</div>
+
+			{simulation.length > 0 && (
+				<div className="board px-10 mt-5">
+					<h2 className="text-lg font-bold">Simulated Answers</h2>
+					<ul>
+						{simulation.map((answer, index) => (
+							<li key={index} className="mb-2 p-2 border rounded-md">
+								{answer}
+							</li>
+						))}
+					</ul>
+				</div>
+			)}
+
 		</>
-		
 	);
 }
 
