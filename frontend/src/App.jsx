@@ -3,7 +3,7 @@ import React from 'react';
 import './index.css';
 import AddQuestion from './pages/addQuestion';
 import AfterInterview from './pages/afterInterview';
-import RealTimeTranscription from './components/RealTimeTranscription';
+import DuringInterview from './pages/duringInterview';
 
 export default function App() {
 	return (
@@ -11,6 +11,7 @@ export default function App() {
 			<Routes>
 				<Route index path="/" element={<Navigate to="/add-question" />} />
 				<Route path="/add-question" element={<AddQuestion />} />
+				<Route path="/during-interview" element={<DuringInterview />} />	
 				<Route path="/after-interview" element={<AfterInterview />} />
 			</Routes>
 		</>

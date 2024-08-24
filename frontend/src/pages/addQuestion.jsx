@@ -4,8 +4,10 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { ReactSortable } from "react-sortablejs";
 import { analyzeFullScript, simulateAnswer, suggestFollowUpQuestions } from '../api';
 import RealTimeTranscription from '../components/RealTimeTranscription';
+import NestedSortable from '../components/NestedSortable';
 
 const draggableList = [];
+const followupQuestions = [];
 
 function AddQuestion() {
 	const navigate = useNavigate();
@@ -15,7 +17,9 @@ function AddQuestion() {
 	const chunks = useRef([]);
 	const [selectedIndex, setSelectedIndex] = useState(null);
 	const [list, setList] = React.useState(draggableList);
+	const [followUpList, setfollowUpList] = React.useState(followupQuestions);
 	const [showInput, setShowInput] = React.useState(false);
+	const [showFollowUp, setshowFollowUp] = React.useState(false);
 	const [newItem, setNewItem] = React.useState("");
 	const [editingIndex, setEditingIndex] = useState(null);
 	const inputRef = useRef(null);
@@ -25,6 +29,9 @@ function AddQuestion() {
 	const [simulation, setSimulation] = useState([]);
 	const [suggestion, setSuggestion] = useState([]);
 	const realTimeTranscriptionRef = useRef(null);
+	const [questions, setQuestions] = useState([]); //List for follow-up questions
+	const [newQuestion, setNewQuestion] = useState('');
+
 
 	const handleItemClick = (index) => {
 		setSelectedIndex(index);
@@ -62,13 +69,13 @@ function AddQuestion() {
 
 	const handleItemDoubleClick = (index) => {
 		setEditingIndex(index);
-		setNewItem(list[index].name);
+		setNewItem(list[index].text);
 	};
 
 	const handleEditItem = (index, value) => {
 		if (value.trim()) {
 			const updatedList = list.map((item, i) =>
-				i === index ? { ...item, name: value } : item
+				i === index ? { ...item, text: value } : item
 			);
 			setList(updatedList);
 		} else {
@@ -77,7 +84,6 @@ function AddQuestion() {
 		}
 		setEditingIndex(null);
 	};
-
 
 	const handleSimulateAnswer = async () => {
 		try {
@@ -101,7 +107,6 @@ function AddQuestion() {
 			setSimulation(['An error occurred while simulating the answers']);
 		}
 	};
-
 
 	const handleSuggestFollowUpQuestions = async () => {
 		try {
@@ -140,7 +145,6 @@ function AddQuestion() {
 			setSuggestion(['An error occurred while suggesting follow up questions']);
 		}
 	};
-
 
 	const handleMark = async () => {
 		try {
@@ -230,74 +234,114 @@ function AddQuestion() {
 		}
 	};
 
+	const handleAddFollowUpQuestion = () => {
+		if (newQuestion.trim()) {
+			setQuestions([...questions, newQuestion.trim()]);
+			setNewQuestion(''); // Clear the input field after adding
+		}
+	};
+
 	return (
-		<><div className="mx-10 mt-10">
-			<div className="text-lg font-bold">Question List</div>
-			<ReactSortable
-				filter=".addImageButtonContainer"
-				dragClass="sortableDrag"
-				list={list}
-				setList={setList}
-				animation="100"
-				easing="ease-out"
-			>
-				{list.map((item, index) => (
-					<div
-						key={index}
-						className={`my-2 pl-3 py-2 w-full inline-block overflow border rounded-sm flex items-center ${item.checked ? 'bg-blue-100 border-blue-500' : selectedIndex === index ? 'bg-yellow-100 border-yellow-500' : 'bg-white border-black'}`}
-						onClick={() => handleItemClick(index)}
-						onDoubleClick={() => handleItemDoubleClick(index)}
+		<>
+			
+				<div className="mx-10 mt-10">
+					<div className="text-lg font-bold">Question List</div>
+					<ReactSortable
+						filter=".addImageButtonContainer"
+						dragClass="sortableDrag"
+						list={list}
+						setList={setList}
+						animation="100"
+						easing="ease-out"
 					>
-						<input
-							type="checkbox"
-							checked={item.checked}
-							onChange={() => handleCheckboxChange(index)}
-							className="mr-2" />
-						{editingIndex === index ? (
-							<textarea
-								ref={inputRef}
-								className="border pl-2 py-2"
-								value={newItem}
-								onChange={handleInputChange}
-								onBlur={() => handleEditItem(index, newItem)}
-								style={{
-									width: "100%",
-									resize: "none",
-									overflow: "hidden"
-								}} />
-						) : (
-							<span>
-								<span className="font-bold mr-2">{index + 1}.</span> {item.name}
-							</span>
+						{list.map((item, index) => (
+							<div
+								key={index}
+								className={`my-2 pl-3 py-2 w-full inline-block overflow border rounded-sm flex items-center ${item.checked ? 'bg-blue-100 border-blue-500' : selectedIndex === index ? 'bg-yellow-100 border-yellow-500' : 'bg-white border-black'}`}
+								onClick={() => handleItemClick(index)}
+								onDoubleClick={() => handleItemDoubleClick(index)}
+							>
+								<input
+									type="checkbox"
+									checked={item.checked}
+									onChange={() => handleCheckboxChange(index)}
+									className="mr-2" />
+								{editingIndex === index ? (
+									<textarea
+										ref={inputRef}
+										className="border pl-2 py-2"
+										value={newItem}
+										onChange={handleInputChange}
+										onBlur={() => handleEditItem(index, newItem)}
+										style={{
+											width: "100%",
+											resize: "none",
+											overflow: "hidden"
+										}} />
+								) : (
+									<span>
+										<span className="font-bold mr-2">{index + 1}.</span> {item.name}
+									</span>
+								)}
+							</div>
+						))}
+					</ReactSortable>
+					<div>
+						{showInput && (
+							<div>
+								<textarea
+									className="border pl-2 py-2"
+									value={newItem}
+									onChange={handleInputChange}
+									onBlur={handleAddItem}
+									placeholder="Type your question here"
+									style={{
+										width: "100%",
+										resize: "none",
+										overflow: "hidden"
+									}} />
+							</div>
 						)}
 					</div>
-				))}
-			</ReactSortable>
+					<button
+						className="px-3 py-3 border rounded-lg text-gray-500"
+						onClick={handleAddClick}
+					>
+						+ Click here to add new questions
+					</button>
 
-			<div>
-				{showInput && (
-					<div>
-						<textarea
-							className="border pl-2 py-2"
-							value={newItem}
-							onChange={handleInputChange}
-							onBlur={handleAddItem}
-							placeholder="Type your question here"
-							style={{
-								width: "100%",
-								resize: "none",
-								overflow: "hidden"
-							}} />
+					{!recording && (
+					<div className="p-4 bg-white rounded-lg">
+						<div className="text-lg font-bold mt-10">Follow-up question List</div>
+						<div className="mb-4">
+							<input
+								type="text"
+								value={newQuestion}
+								onChange={(e) => setNewQuestion(e.target.value)}
+								className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+								placeholder="Enter a new question"
+							/>
+							<button
+								onClick={handleAddFollowUpQuestion}
+								className="mt-2 w-full bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition duration-300"
+							>
+								Add follow-up question
+							</button>
+						</div>
+						<ul className="space-y-2">
+							{questions.map((question, index) => (
+								<li
+									key={index}
+									className="p-2 bg-gray-100 border border-gray-300 rounded-lg"
+								>
+									{question}
+								</li>
+							))}
+						</ul>
 					</div>
-				)}
-			</div>
-			<button
-				className="px-3 py-3 border rounded-lg text-gray-500"
-				onClick={handleAddClick}
-			>
-				+ Click here to add new questions
-			</button>
-		</div>
+					)}
+				</div>
+
 			<div className="flex justify-end px-5 pr-10">
 				{!recording ? (
 					<button onClick={handleStartClick} className="bg-blue-500 hover:bg-sky-700 text-white px-5 py-3 rounded-lg">
@@ -360,14 +404,13 @@ function AddQuestion() {
 			{suggestion.length > 0 && (
 				<div className="board px-10 mt-5">
 					<div className="text-lg font-bold">Follow-up question suggestions</div>
-					<ul>
+					<div>
 						{suggestion.map((answer, index) => (
-							<li key={index} className="mb-2 p-2 border rounded-md">
+							<div key={index} className="mb-2 p-2 border rounded-md">
 								{answer}
-							</li>
+							</div>
 						))}
-					</ul>
-
+					</div>
 				</div>
 			)}
 		</>
