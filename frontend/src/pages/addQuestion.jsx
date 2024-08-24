@@ -2,7 +2,7 @@ import '../index.css';
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ReactSortable } from "react-sortablejs";
-import { analyzeFullScript, simulateAnswer } from '../api';
+import { analyzeFullScript, simulateAnswer, suggestFollowUpQuestions } from '../api';
 import RealTimeTranscription from '../components/RealTimeTranscription';
 
 const draggableList = [];
@@ -23,6 +23,7 @@ function AddQuestion() {
 	const results = state ? state.results : null;
 	const [analysis, setAnalysis] = useState([]);
 	const [simulation, setSimulation] = useState([]);
+	const [suggestion, setSuggestion] = useState([]);
 	const realTimeTranscriptionRef = useRef(null);
 
 	const handleItemClick = (index) => {
@@ -83,23 +84,62 @@ function AddQuestion() {
 			// Iterate through each question in the list
 			const results = await Promise.all(list.map(async (item) => {
 				const prompt = `
-					You will be given a question, and your task is to simulate users' answers to that. 
-					One answer is enough.
-					Question: ${item.name}
+					You are given a question:${item.name}, and your task is to simulate users' answers to that. 
+					Give multiple answers and output the result in templates like below:
+					1........
+					2........
+					3........
 				`;
 				const result = await simulateAnswer(prompt);
 				return result;
 			}));
 			const flattenedResults = results.flat();
 			console.log('Simulating results:', flattenedResults);
-			setSimulation(flattenedResults);
-
+			setSimulation(results);
 		} catch (error) {
 			console.error('Simulating failed', error);
 			setSimulation(['An error occurred while simulating the answers']);
 		}
 	};
 
+
+	const handleSuggestFollowUpQuestions = async () => {
+		try {
+			const results = await Promise.all(list.map(async (item) => {
+				const prompt = `
+			
+					You are given some simulated answers to a question, both of them are quoted """ 
+					Your task is to suggest follow-up questions based on the simulated answers
+					Output the results following the template below:
+
+					Question1 follow-up questions:
+					1.....
+					2.....
+					3.....
+
+					Question2 follow-up questions:
+					1.....
+					2.....
+					3.....
+					
+					
+					"""
+					Question: ${item.name}
+					Simulated Answers: ${simulation.join('\n')}
+					""";
+					}
+				`;
+				const result = await suggestFollowUpQuestions(prompt);
+				return result;
+			}));
+			const flattenedResults = results.flat();
+			console.log('Suggestions:', flattenedResults);
+			setSuggestion(flattenedResults);
+		} catch (error) {
+			console.error('Suggesting follow up questions failed', error);
+			setSuggestion(['An error occurred while suggesting follow up questions']);
+		}
+	};
 
 
 	const handleMark = async () => {
@@ -178,7 +218,7 @@ function AddQuestion() {
 				method: "POST",
 				prompt: "Return the results in bullet points",
 				headers: {
-					"Authorization": `Bearer `
+					"Authorization": `Bearer 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`
 				},
 				body: formData
 			});
@@ -191,7 +231,6 @@ function AddQuestion() {
 	};
 
 	return (
-
 		<><div className="mx-10 mt-10">
 			<div className="text-lg font-bold">Question List</div>
 			<ReactSortable
@@ -277,6 +316,12 @@ function AddQuestion() {
 				</button>
 			</div>
 
+			<div className="flex pt-5 justify-end px-5 pr-10">
+				<button onClick={handleSuggestFollowUpQuestions} className="bg-pink-500 hover:bg-pink-700 text-white px-5 py-3 rounded-lg">
+					Follow-up questions
+				</button>
+			</div>
+
 			<div className='px-10 mt-5 text-lg board font-bold'>Real Time Transcription</div>
 			<RealTimeTranscription ref={realTimeTranscriptionRef} />
 
@@ -301,17 +346,30 @@ function AddQuestion() {
 
 			{simulation.length > 0 && (
 				<div className="board px-10 mt-5">
-					<h2 className="text-lg font-bold">Simulated Answers</h2>
-					<ul>
+					<div className="text-lg font-bold">Simulated Answers</div>
+					<div>
 						{simulation.map((answer, index) => (
+							<div key={index} className="mb-2 p-2 border rounded-md">
+								{answer}
+							</div>
+						))}
+					</div>
+				</div>
+			)}
+
+			{suggestion.length > 0 && (
+				<div className="board px-10 mt-5">
+					<div className="text-lg font-bold">Follow-up question suggestions</div>
+					<ul>
+						{suggestion.map((answer, index) => (
 							<li key={index} className="mb-2 p-2 border rounded-md">
 								{answer}
 							</li>
 						))}
 					</ul>
+
 				</div>
 			)}
-
 		</>
 	);
 }

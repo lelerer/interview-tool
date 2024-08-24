@@ -35,7 +35,7 @@ wss.on('connection', (ws) => {
             }
         }
     });
-
+	
     ws.on('message', (message) => {
         if (message === 'start') {
             console.log('Starting recording');

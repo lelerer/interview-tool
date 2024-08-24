@@ -70,7 +70,8 @@ const RealTimeTranscription = forwardRef((props, ref) => {
 
 	const getRecent = (text) => {
 		const lines = text.split('\n').filter(line => line.trim() !== '');
-		return lines.slice(-3).join('\n');
+		return lines.slice(-10).join('\n');
+		// return lines.join('\n');
 	};
 
 	return (
