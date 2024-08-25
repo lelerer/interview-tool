@@ -3,7 +3,7 @@ import React, { useState } from "react";
 function DuringInterview() {
 
 	return (
-		<div> TESTING </div>
+		<div> TEST </div>
 	);
 }
 

@@ -243,74 +243,73 @@ function AddQuestion() {
 
 	return (
 		<>
-			
-				<div className="mx-10 mt-10">
-					<div className="text-lg font-bold">Question List</div>
-					<ReactSortable
-						filter=".addImageButtonContainer"
-						dragClass="sortableDrag"
-						list={list}
-						setList={setList}
-						animation="100"
-						easing="ease-out"
-					>
-						{list.map((item, index) => (
-							<div
-								key={index}
-								className={`my-2 pl-3 py-2 w-full inline-block overflow border rounded-sm flex items-center ${item.checked ? 'bg-blue-100 border-blue-500' : selectedIndex === index ? 'bg-yellow-100 border-yellow-500' : 'bg-white border-black'}`}
-								onClick={() => handleItemClick(index)}
-								onDoubleClick={() => handleItemDoubleClick(index)}
-							>
-								<input
-									type="checkbox"
-									checked={item.checked}
-									onChange={() => handleCheckboxChange(index)}
-									className="mr-2" />
-								{editingIndex === index ? (
-									<textarea
-										ref={inputRef}
-										className="border pl-2 py-2"
-										value={newItem}
-										onChange={handleInputChange}
-										onBlur={() => handleEditItem(index, newItem)}
-										style={{
-											width: "100%",
-											resize: "none",
-											overflow: "hidden"
-										}} />
-								) : (
-									<span>
-										<span className="font-bold mr-2">{index + 1}.</span> {item.name}
-									</span>
-								)}
-							</div>
-						))}
-					</ReactSortable>
-					<div>
-						{showInput && (
-							<div>
+			<div className="mx-10 mt-10">
+				<div className="text-lg font-bold">Question List</div>
+				<ReactSortable
+					filter=".addImageButtonContainer"
+					dragClass="sortableDrag"
+					list={list}
+					setList={setList}
+					animation="100"
+					easing="ease-out"
+				>
+					{list.map((item, index) => (
+						<div
+							key={index}
+							className={`my-2 pl-3 py-2 w-full inline-block overflow border rounded-sm flex items-center ${item.checked ? 'bg-blue-100 border-blue-500' : selectedIndex === index ? 'bg-yellow-100 border-yellow-500' : 'bg-white border-black'}`}
+							onClick={() => handleItemClick(index)}
+							onDoubleClick={() => handleItemDoubleClick(index)}
+						>
+							<input
+								type="checkbox"
+								checked={item.checked}
+								onChange={() => handleCheckboxChange(index)}
+								className="mr-2" />
+							{editingIndex === index ? (
 								<textarea
+									ref={inputRef}
 									className="border pl-2 py-2"
 									value={newItem}
 									onChange={handleInputChange}
-									onBlur={handleAddItem}
-									placeholder="Type your question here"
+									onBlur={() => handleEditItem(index, newItem)}
 									style={{
 										width: "100%",
 										resize: "none",
 										overflow: "hidden"
 									}} />
-							</div>
-						)}
-					</div>
-					<button
-						className="px-3 py-3 border rounded-lg text-gray-500"
-						onClick={handleAddClick}
-					>
-						+ Click here to add new questions
-					</button>
+							) : (
+								<span>
+									<span className="font-bold mr-2">{index + 1}.</span> {item.name}
+								</span>
+							)}
+						</div>
+					))}
+				</ReactSortable>
+				<div>
+					{showInput && (
+						<div>
+							<textarea
+								className="border pl-2 py-2"
+								value={newItem}
+								onChange={handleInputChange}
+								onBlur={handleAddItem}
+								placeholder="Type your question here"
+								style={{
+									width: "100%",
+									resize: "none",
+									overflow: "hidden"
+								}} />
+						</div>
+					)}
+				</div>
+				<button
+					className="px-3 py-3 border rounded-lg text-gray-500"
+					onClick={handleAddClick}
+				>
+					+ Click here to add new questions
+				</button>
 
-					{!recording && (
+				{!recording && (
 					<div className="p-4 bg-white rounded-lg">
 						<div className="text-lg font-bold mt-10">Follow-up question List</div>
 						<div className="mb-4">
@@ -339,8 +338,9 @@ function AddQuestion() {
 							))}
 						</ul>
 					</div>
-					)}
-				</div>
+				)}
+			</div>
+
 
 			<div className="flex justify-end px-5 pr-10">
 				{!recording ? (
@@ -354,17 +354,19 @@ function AddQuestion() {
 				)}
 			</div>
 
-			<div className="flex pt-5 justify-end px-5 pr-10">
-				<button onClick={handleSimulateAnswer} className="bg-yellow-500 hover:bg-yellow-700 text-white px-5 py-3 rounded-lg">
-					Simulate
-				</button>
-			</div>
-
-			<div className="flex pt-5 justify-end px-5 pr-10">
-				<button onClick={handleSuggestFollowUpQuestions} className="bg-pink-500 hover:bg-pink-700 text-white px-5 py-3 rounded-lg">
-					Follow-up questions
-				</button>
-			</div>
+			{!recording && (
+				<>
+					<div className="flex pt-5 justify-end px-5 pr-10">
+						<button onClick={handleSimulateAnswer} className="bg-yellow-500 hover:bg-yellow-700 text-white px-5 py-3 rounded-lg">
+							Simulate
+						</button>
+					</div><div className="flex pt-5 justify-end px-5 pr-10">
+						<button onClick={handleSuggestFollowUpQuestions} className="bg-pink-500 hover:bg-pink-700 text-white px-5 py-3 rounded-lg">
+							Follow-up questions
+						</button>
+					</div>
+				</>
+			)}
 
 			<div className='px-10 mt-5 text-lg board font-bold'>Real Time Transcription</div>
 			<RealTimeTranscription ref={realTimeTranscriptionRef} />
@@ -388,7 +390,8 @@ function AddQuestion() {
 			>Mark
 			</div>
 
-			{simulation.length > 0 && (
+
+			{simulation.length > 0 && !recording && (
 				<div className="board px-10 mt-5">
 					<div className="text-lg font-bold">Simulated Answers</div>
 					<div>
@@ -401,7 +404,7 @@ function AddQuestion() {
 				</div>
 			)}
 
-			{suggestion.length > 0 && (
+			{suggestion.length > 0 && !recording && (
 				<div className="board px-10 mt-5">
 					<div className="text-lg font-bold">Follow-up question suggestions</div>
 					<div>
@@ -413,6 +416,8 @@ function AddQuestion() {
 					</div>
 				</div>
 			)}
+	
+
 		</>
 	);
 }
